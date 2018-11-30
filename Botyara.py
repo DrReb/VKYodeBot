@@ -72,4 +72,4 @@ while True:
         message_vk += "\n" + videoTitles[i] + "\n" + videoURLs[i] + "\n"
         i+=1
     vk_api.wall.post(owner_id = my_app_id, message = message_vk)
-    time.sleep(60)
+    time.sleep(10800)
