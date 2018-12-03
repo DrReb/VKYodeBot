@@ -64,44 +64,43 @@ def youtube_search(options, channel):
 vk = vk_auth(user_login, user_password, key)
 vk_api = vk.get_api()
 
-try:
-    f = open(info_file, mode = 'r')
-except:
-    f = open(info_file, mode = 'w')
+while True:
+    try:
+        f = open(info_file, mode = 'r')
+    except:
+        f = open(info_file, mode = 'w')
+        f.close
+        
+    try:
+        f_data = json.load(f)
+    except:
+        f_data = {}
+        f.close
+        f = open(backup_info_file, mode = 'r')
+        fr = [line.rstrip() for line in f]
+        for line in fr:
+            f_data[line] = ''
+        
     f.close
-    
-try:
-    f_data = json.load(f)
-except:
-    f_data = {}
+
+
+    f = open('channelInfo.json', 'w')
+    for key, value in f_data.items():
+        videoTitles = []
+        videoURLs = []
+        args = argparser.parse_args()
+        youtube_search(args, key)    
+        i = 0
+        if value == videoURLs[0]:
+            print('На этом канале нет новых видео')
+            f.write(key + ':' + f_data[key])
+        else:
+            f_data[key] = videoURLs[0]
+            message_vk = ""
+            while i < len(videoTitles):
+                message_vk += "\n" + videoTitles[i] + "\n" + "http://www.youtube.com/watch?v=" + videoURLs[i] + "\n"
+                i+=1
+            vk_api.wall.post(owner_id = my_app_id, message = message_vk)
+    f.write(json.dumps(f_data))
     f.close
-    f = open(backup_info_file, mode = 'r')
-    fr = [line.rstrip() for line in f]
-    for line in fr:
-        f_data[line] = ''
-    
-f.close
-
-
-f = open('channelInfo.json', 'w')
-for key, value in f_data.items():
-    videoTitles = []
-    videoURLs = []
-    args = argparser.parse_args()
-    youtube_search(args, key)    
-    i = 0
-    if value == videoURLs[0]:
-        print('На этом канале нет новых видео')
-        f.write(key + ':' + f_data[key])
-    else:
-        f_data[key] = videoURLs[0]
-        message_vk = ""
-        while i < len(videoTitles):
-            message_vk += "\n" + videoTitles[i] + "\n" + "http://www.youtube.com/watch?v=" + videoURLs[i] + "\n"
-            i+=1
-        vk_api.wall.post(owner_id = my_app_id, message = message_vk)
-f.write(json.dumps(f_data))
-f.close
-              
-
-    #time.sleep(10800)
+    time.sleep(10800)
