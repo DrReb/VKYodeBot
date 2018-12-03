@@ -64,7 +64,10 @@ def youtube_search(options, channel):
 vk = vk_auth(user_login, user_password, key)
 vk_api = vk.get_api()
 
+c = 0
 while True:
+    c += 1
+    print('New cicle')
     try:
         f = open(info_file, mode = 'r')
     except:
@@ -73,6 +76,8 @@ while True:
         
     try:
         f_data = json.load(f)
+        for item in f_data:
+            print(item)
     except:
         f_data = {}
         f.close
@@ -80,6 +85,7 @@ while True:
         fr = [line.rstrip() for line in f]
         for line in fr:
             f_data[line] = ''
+            print(line)
         
     f.close
 
@@ -93,7 +99,6 @@ while True:
         i = 0
         if value == videoURLs[0]:
             print('На этом канале нет новых видео')
-            f.write(key + ':' + f_data[key])
         else:
             f_data[key] = videoURLs[0]
             message_vk = ""
@@ -101,6 +106,7 @@ while True:
                 message_vk += "\n" + videoTitles[i] + "\n" + "http://www.youtube.com/watch?v=" + videoURLs[i] + "\n"
                 i+=1
             vk_api.wall.post(owner_id = my_app_id, message = message_vk)
-    f.write(json.dumps(f_data))
+    fr = json.dumps(f_data)
+    f.write(fr)
     f.close
-    time.sleep(10800)
+    time.sleep(300)
