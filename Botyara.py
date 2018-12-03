@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import vk_api
 import time
+import json
 
 
 from apiclient.discovery import build
@@ -11,11 +12,13 @@ DEVELOPER_KEY = "AIzaSyCxRChRkk5DRLixKE0ntOzdDYZ9SbGKE_M"
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
+info_file = 'channelInfo.json'
+backup_info_file = 'channelInfo.txt'
+
 my_app_id = -174558140
 user_login = '+79885487241'
 user_password = '271640893199a'
 key = '6626073545b4d3e8149869778c7afee0c853f3fc4a825110d53b2ba35b9d2ec9cd470985197ceacd74e80'
-
 
 def vk_auth(login, password, token):
     vk = vk_api.VkApi(login, password, token)
@@ -23,7 +26,7 @@ def vk_auth(login, password, token):
 
     return vk
 
-def youtube_search(options):
+def youtube_search(options, channel):
   youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
     developerKey=DEVELOPER_KEY)
 
@@ -33,7 +36,7 @@ def youtube_search(options):
     type="video",
     part="id,snippet",
     maxResults=5,
-    channelId="UC6cqazSR6CnVMClY0bJI0Lg",
+    channelId=channel,
     order="date"
   ).execute()
 
@@ -54,22 +57,51 @@ def youtube_search(options):
   # Add each result to the list, and then display the list of matching videos.
   for video_result in video_response.get("items", []):
     videoTitles.append("%s" % (video_result["snippet"]["title"]))
-    videoURLs.append("http://www.youtube.com/watch?v=" + "%s" % (video_result["id"]))
+    videoURLs.append("%s" % (video_result["id"]))
 
-  print ("\n".join(videoURLs), "\n")
-  
+
+ 
 vk = vk_auth(user_login, user_password, key)
 vk_api = vk.get_api()
-  
-while True:
+
+try:
+    f = open(info_file, mode = 'r')
+except:
+    f = open(info_file, mode = 'w')
+    f.close
+    
+try:
+    f_data = json.load(f)
+except:
+    f_data = {}
+    f.close
+    f = open(backup_info_file, mode = 'r')
+    fr = [line.rstrip() for line in f]
+    for line in fr:
+        f_data[line] = ''
+    
+f.close
+
+
+f = open('channelInfo.json', 'w')
+for key, value in f_data.items():
     videoTitles = []
     videoURLs = []
     args = argparser.parse_args()
-    youtube_search(args)    
+    youtube_search(args, key)    
     i = 0
-    message_vk = ""
-    while i < len(videoTitles):
-        message_vk += "\n" + videoTitles[i] + "\n" + videoURLs[i] + "\n"
-        i+=1
-    vk_api.wall.post(owner_id = my_app_id, message = message_vk)
-    time.sleep(10800)
+    if value == videoURLs[0]:
+        print('На этом канале нет новых видео')
+        f.write(key + ':' + f_data[key])
+    else:
+        f_data[key] = videoURLs[0]
+        message_vk = ""
+        while i < len(videoTitles):
+            message_vk += "\n" + videoTitles[i] + "\n" + "http://www.youtube.com/watch?v=" + videoURLs[i] + "\n"
+            i+=1
+        vk_api.wall.post(owner_id = my_app_id, message = message_vk)
+f.write(json.dumps(f_data))
+f.close
+              
+
+    #time.sleep(10800)
