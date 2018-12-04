@@ -105,7 +105,7 @@ while c  == 0:
             while i < len(videoTitles):
                 message_vk += "\n" + videoTitles[i] + "\n" + "http://www.youtube.com/watch?v=" + videoURLs[i] + "\n"
                 i+=1
-            vk_api.wall.post(owner_id = my_app_id, message = message_vk)
+            vk_api.wall.post(owner_id = my_app_id, from_group = 1, message = message_vk)
     fr = json.dumps(f_data)
     f.write(fr)
     f.close
