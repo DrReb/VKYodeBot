@@ -65,7 +65,7 @@ vk = vk_auth(user_login, user_password, key)
 vk_api = vk.get_api()
 
 c = 0
-while True:
+while c  == 0:
     c += 1
     print('New cicle')
     try:
@@ -109,4 +109,4 @@ while True:
     fr = json.dumps(f_data)
     f.write(fr)
     f.close
-    time.sleep(300)
+    #time.sleep(300)
